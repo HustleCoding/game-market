@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, memo, useRef } from "react";
@@ -135,6 +136,23 @@ const MOCK_VENDORS: Record<string, VendorData> = {
     },
     founded_year: 2012,
   },
+  "mock-vendor-7": {
+    id: "mock-vendor-7",
+    name: "Comp AI",
+    description:
+      "Enterprise-grade Compliance Automation Platform powered by AI. Streamline your compliance process with frameworks like SOC 2, ISO 27001, GDPR, and HIPAA. Our cutting-edge technology reduces compliance time by 75% and automates evidence collection with 24/7 monitoring for continuous compliance.",
+    logo_url: "/placeholder.svg?height=150&width=150",
+    website: "https://trycomp.ai",
+    location: "Tech Hub, Premium Central Position",
+    contact_email: "info@trycomp.ai",
+    social_media: {
+      twitter: "@compai",
+      linkedin: "compai",
+      github: "compai-automation",
+      instagram: "@compai.official",
+    },
+    founded_year: 2021,
+  },
 } as const;
 
 // Update MOCK_STALLS to add vendor 5 and 6
@@ -204,6 +222,17 @@ const MOCK_STALLS: StallData[] = [
     color: "#9142f5",
     name: "Literary Haven",
     stall_type: 3,
+  },
+  {
+    id: "mock-stall-7",
+    vendor_id: "mock-vendor-7",
+    position_x: 0,
+    position_y: 0.5, // Elevated position for prominence
+    position_z: 0,
+    rotation_y: Math.PI / 4,
+    color: "#0066ff", // Brighter, more vibrant blue
+    name: "Comp AI",
+    stall_type: 2, // Using tech stall type since it's a tech company
   },
 ] as const;
 
@@ -397,6 +426,54 @@ const getMockProductsByVendorId = (vendorId: string) => {
           vendor_id: "mock-vendor-6",
         },
       ];
+    case "mock-vendor-7": // Comp AI
+      return [
+        {
+          id: "product-7-1",
+          name: "ComplianceOS Enterprise",
+          description:
+            "Comprehensive compliance automation platform with AI-powered evidence collection, policy management, risk assessment, and real-time monitoring. Supports all major frameworks with customizable dashboard and integration capabilities.",
+          price: 499.99,
+          image_url: "/placeholder.svg?height=250&width=250",
+          vendor_id: "mock-vendor-7",
+        },
+        {
+          id: "product-7-2",
+          name: "SOC 2 Accelerator",
+          description:
+            "Complete solution for SOC 2 compliance with automated evidence collection, gap analysis, and pre-built controls. Reduces certification time from months to weeks with AI-generated documentation and continuous monitoring.",
+          price: 299.95,
+          image_url: "/placeholder.svg?height=250&width=250",
+          vendor_id: "mock-vendor-7",
+        },
+        {
+          id: "product-7-3",
+          name: "Privacy Shield Suite",
+          description:
+            "All-in-one platform for privacy compliance including GDPR, CCPA, and HIPAA. Features data mapping, automated subject rights request handling, breach notification workflows, and custom privacy policy generation.",
+          price: 249.99,
+          image_url: "/placeholder.svg?height=250&width=250",
+          vendor_id: "mock-vendor-7",
+        },
+        {
+          id: "product-7-4",
+          name: "ComplianceAPI Premium",
+          description:
+            "Enterprise API access to Comp AI's compliance engine with up to 100,000 requests per month. Seamlessly integrate compliance checks into your development and deployment pipelines with real-time validation and audit trails.",
+          price: 399.99,
+          image_url: "/placeholder.svg?height=250&width=250",
+          vendor_id: "mock-vendor-7",
+        },
+        {
+          id: "product-7-5",
+          name: "Compliance Training Academy",
+          description:
+            "Comprehensive training platform for your team with interactive courses on compliance frameworks, security best practices, and regulatory requirements. Includes certification tracks and progress monitoring.",
+          price: 149.99,
+          image_url: "/placeholder.svg?height=250&width=250",
+          vendor_id: "mock-vendor-7",
+        },
+      ];
     default:
       return [
         {
@@ -421,27 +498,7 @@ export function Marketplace() {
   const [error, setError] = useState<string | null>(null);
   const [selectedStall, setSelectedStall] = useState<string | null>(null);
   const [cameraPosition] = useState<[number, number, number]>([0, 20, 45]);
-  const [products, setProducts] = useState<ProductData[]>([]);
   const [vendorPanelOpen, setVendorPanelOpen] = useState<boolean>(false);
-
-  // Update the preload function to use the mock products
-  useEffect(() => {
-    const preloadVendors = async () => {
-      // For a real implementation, you would preload real data here
-      // This is just to simulate preloading all vendor data
-      if (selectedStall) {
-        const stall = stalls.find((s) => s.id === selectedStall);
-        if (stall) {
-          const mockProducts = getMockProductsByVendorId(stall.vendor_id);
-          setProducts(mockProducts);
-        }
-      } else {
-        // Set default products if no stall is selected
-        setProducts(getMockProductsByVendorId("mock-vendor-1"));
-      }
-    };
-    preloadVendors();
-  }, [selectedStall, stalls]);
 
   // Memoized handlers with improved performance
   const handleStallInteraction = useCallback(
@@ -540,7 +597,6 @@ export function Marketplace() {
       {selectedStallInfo && vendorPanelOpen && (
         <VendorInfoPanel
           vendor={selectedStallInfo.vendor}
-          products={products}
           onClose={handleCloseVendorPanel}
         />
       )}

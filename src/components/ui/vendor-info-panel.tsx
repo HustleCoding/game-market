@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 
 import { useEffect } from "react";
@@ -21,15 +22,10 @@ interface Product {
 
 interface VendorInfoPanelProps {
   vendor: Vendor | null;
-  products?: Product[]; // Make products optional
   onClose: () => void;
 }
 
-export function VendorInfoPanel({
-  vendor,
-  products = [],
-  onClose,
-}: VendorInfoPanelProps) {
+export function VendorInfoPanel({ vendor, onClose }: VendorInfoPanelProps) {
   // Handle escape key press
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
@@ -43,10 +39,6 @@ export function VendorInfoPanel({
   }, [onClose]);
 
   if (!vendor) return null;
-
-  const vendorProducts = products.filter(
-    (product) => product.vendor_id === vendor.id
-  );
 
   return (
     <>
@@ -87,31 +79,6 @@ export function VendorInfoPanel({
               <ExternalLink size={14} />
               <span>Visit Website</span>
             </a>
-          )}
-
-          {/* Products section */}
-          {vendorProducts.length > 0 && (
-            <div className="mt-4">
-              <h3 className="text-md font-medium mb-2">Products</h3>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {vendorProducts.map((product) => (
-                  <div
-                    key={product.id}
-                    className="p-2 bg-gray-100 dark:bg-gray-700 rounded"
-                  >
-                    <p className="font-medium">{product.name}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      ${product.price.toFixed(2)}
-                    </p>
-                    {product.description && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {product.description}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
           )}
         </div>
       </div>

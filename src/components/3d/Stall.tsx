@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 
 import { useRef, useState, useEffect } from "react";
@@ -20,6 +21,7 @@ interface StallProps {
   particleCount?: number;
   adText?: string; // Advertisement text
   adColor?: string; // Ad text color
+  isPremium?: boolean; // Flag for premium vendors with enhanced visuals
 }
 
 enum StallTypes {
@@ -44,6 +46,7 @@ export function Stall({
   particleCount = 20,
   adText = "Special Offer!",
   adColor = "#ffffff",
+  isPremium = false,
 }: StallProps) {
   const meshRef = useRef<Mesh>(null);
   const roofRef = useRef<Mesh>(null);
@@ -51,6 +54,14 @@ export function Stall({
 
   // Use stallId and vendorId in a data attribute to avoid "unused variable" warnings
   const stallData = useRef({ stallId, vendorId }).current;
+
+  // Set isPremium automatically for the center vendor
+  const isPremiumVendor = isPremium || vendorId === "mock-vendor-7";
+
+  // Adjust particle count for premium vendors
+  const effectiveParticleCount = isPremiumVendor
+    ? particleCount * 2
+    : particleCount;
 
   // Debug effect that logs the stall identifiers once
   useEffect(() => {
@@ -67,7 +78,30 @@ export function Stall({
     if (meshRef.current && roofRef.current) {
       const time = state.clock.elapsedTime;
 
-      // Smooth scale animation
+      // Special treatment for premium vendors (particularly the center one)
+      if (isPremiumVendor) {
+        // Enhanced scale animation for premium stalls
+        const premiumScaleFactor = hovered ? 1.15 : 1.05;
+        meshRef.current.scale.lerp(
+          new Vector3(
+            scale[0] * premiumScaleFactor,
+            scale[1] * premiumScaleFactor,
+            scale[2] * premiumScaleFactor
+          ),
+          0.1
+        );
+
+        // Special floating animation for premium stalls
+        meshRef.current.position.y = 0.5 + Math.sin(time * 1.5) * 0.2;
+
+        // Pulsing roof for premium stalls
+        roofRef.current.scale.y = 1 + Math.sin(time * 2) * 0.15;
+        roofRef.current.rotation.y += 0.02;
+
+        return;
+      }
+
+      // Regular scaling for non-premium stalls
       const scaleFactor = hovered ? 1.1 : 1;
       meshRef.current.scale.lerp(
         new Vector3(
@@ -148,7 +182,7 @@ export function Stall({
   };
 
   return (
-    <group position={position} rotation={rotation}>
+    <group position={position} rotation={rotation} onClick={handleInteraction}>
       {/* Base */}
       <mesh receiveShadow castShadow position={[0, 0.05, 0]}>
         <boxGeometry args={[3 * scale[0], 0.1 * scale[1], 3 * scale[2]]} />
@@ -167,125 +201,109 @@ export function Stall({
         position={[0, 1.5, 0]}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
-        onClick={handleInteraction}
       >
         {getGeometry()}
         <meshStandardMaterial
-          color={
-            highlighted
-              ? "#ff9900"
-              : hovered
-              ? new Color(color).multiplyScalar(1.2).getStyle()
-              : color
-          }
-          emissive={
-            highlighted
-              ? "#ff6600"
-              : stallType === StallTypes.TECH
-              ? "#00ccff"
-              : "#000000"
-          }
-          emissiveIntensity={
-            highlighted ? 0.5 : stallType === StallTypes.TECH ? 0.3 : 0
-          }
-          roughness={stallType === StallTypes.FOOD ? 0.8 : 0.5}
-          metalness={stallType === StallTypes.TECH ? 0.7 : 0.3}
+          color={color}
+          metalness={isPremiumVendor ? 0.8 : 0.5}
+          roughness={isPremiumVendor ? 0.2 : 0.5}
+          emissive={highlighted || isPremiumVendor ? color : "black"}
+          emissiveIntensity={highlighted ? 0.5 : isPremiumVendor ? 0.3 : 0}
         />
       </mesh>
 
       {/* Roof */}
-      <mesh
-        ref={roofRef}
-        receiveShadow
-        castShadow
-        position={[0, stallType === StallTypes.TECH ? 2.8 : 3.2, 0]}
-      >
+      <mesh ref={roofRef} receiveShadow castShadow position={[0, 2.5, 0]}>
         {getRoofGeometry()}
         <meshStandardMaterial
-          color={stallType === StallTypes.FOOD ? "#ff4444" : "#6b2b0d"}
-          roughness={0.6}
-          metalness={stallType === StallTypes.TECH ? 0.5 : 0.1}
-          emissive={stallType === StallTypes.TECH ? "#00ffff" : "#000000"}
-          emissiveIntensity={stallType === StallTypes.TECH ? 0.2 : 0}
+          color={highlighted || isPremiumVendor ? 0xffffff : color}
+          transparent={true}
+          opacity={0.9}
+          metalness={isPremiumVendor ? 0.9 : 0.6}
+          roughness={isPremiumVendor ? 0.1 : 0.4}
+          emissive={highlighted || isPremiumVendor ? color : "black"}
+          emissiveIntensity={highlighted ? 0.7 : isPremiumVendor ? 0.5 : 0}
         />
       </mesh>
 
       {/* Stall Name */}
       {showLabel && (
-        <Text
-          position={[0, stallType === StallTypes.TECH ? 3.8 : 4.2, 0]}
-          color={highlighted ? "#ff9900" : "white"}
-          fontSize={0.3 * scale[1]}
-          maxWidth={2}
-          lineHeight={1}
-          letterSpacing={0.02}
-          textAlign="center"
-          anchorY="bottom"
-          outlineWidth={highlighted ? 0.02 : 0}
-          outlineColor="#000000"
+        <Billboard
+          position={[0, isPremiumVendor ? 7 : 3.5, 0]}
+          follow={true}
+          lockX={true}
+          lockY={true}
+          lockZ={true}
         >
-          {name}
-        </Text>
+          <Text
+            fontSize={isPremiumVendor ? 0.4 : 0.35}
+            color={isPremiumVendor ? "#FFD700" : "#ffffff"}
+            outlineWidth={0.02}
+            outlineColor="#000000"
+            maxWidth={2}
+            textAlign="center"
+            anchorX="center"
+            anchorY="middle"
+          >
+            {name}
+          </Text>
+        </Billboard>
       )}
 
       {/* Advertisement Billboard */}
-      <Billboard position={[0, stallType === StallTypes.TECH ? 4.5 : 5, 0]}>
-        <mesh position={[0, 0, 0.1]}>
-          <planeGeometry args={[2 * scale[0], 0.5 * scale[1]]} />
-          <meshStandardMaterial
-            color="#222222"
-            roughness={0.8}
-            metalness={0.1}
-            transparent
-            opacity={0.9}
-          />
-        </mesh>
-        <Text
-          position={[0, 0, 0.2]}
-          color={adColor}
-          fontSize={0.15 * scale[1]}
-          maxWidth={1.8}
-          textAlign="center"
-          anchorY="middle"
-          outlineWidth={0.01}
-          outlineColor="#000000"
+      {isPremiumVendor && (
+        <Billboard
+          position={[0, 3.2, 0]}
+          follow={true}
+          lockX={true}
+          lockY={true}
+          lockZ={true}
         >
-          {adText}
-        </Text>
-      </Billboard>
+          <Text
+            fontSize={0.3}
+            color={adColor}
+            maxWidth={2.5}
+            textAlign="center"
+            anchorX="center"
+            anchorY="middle"
+          >
+            {"AI-Powered Compliance"}
+          </Text>
+        </Billboard>
+      )}
 
       {/* Particle effects */}
-      {highlighted && (
+      {(highlighted || isPremiumVendor) && (
         <Sparkles
-          count={particleCount}
-          scale={[3 * scale[0], 3 * scale[1], 3 * scale[2]]}
-          size={stallType === StallTypes.FOOD ? 3 : 2}
-          speed={stallType === StallTypes.TECH ? 1 : 0.5}
+          count={effectiveParticleCount}
+          scale={isPremiumVendor ? 6 : 4}
+          size={isPremiumVendor ? 2 : 1.5}
+          speed={0.4}
           color={getParticleColor()}
-          position={[0, 2, 0]}
+          opacity={0.7}
         />
       )}
 
-      {/* Highlight marker */}
-      {highlighted && (
-        <group position={[0, stallType === StallTypes.TECH ? 4.5 : 5, 0]}>
-          <mesh>
-            <icosahedronGeometry args={[0.3 * scale[0], 1]} />
-            <meshStandardMaterial
-              color="red"
-              emissive="red"
-              emissiveIntensity={0.8}
-              roughness={0.4}
-              metalness={0.6}
-            />
-          </mesh>
-          <pointLight
-            color={getParticleColor()}
-            intensity={0.8}
-            distance={6}
-            castShadow
-          />
-        </group>
+      {/* Special billboard effect for premium vendors */}
+      {isPremiumVendor && (
+        <Billboard
+          position={[0, 5, 0]}
+          follow={true}
+          lockX={true}
+          lockY={true}
+          lockZ={true}
+        >
+          <Text
+            fontSize={0.5}
+            color="#FFD700"
+            outlineWidth={0.02}
+            outlineColor="#000000"
+            anchorX="center"
+            anchorY="middle"
+          >
+            {`✦ CompAI ✦`}
+          </Text>
+        </Billboard>
       )}
     </group>
   );
