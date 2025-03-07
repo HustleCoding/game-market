@@ -153,9 +153,24 @@ const MOCK_VENDORS: Record<string, VendorData> = {
     },
     founded_year: 2021,
   },
+  "mock-vendor-8": {
+    id: "mock-vendor-8",
+    name: "Softgen AI",
+    description:
+      "Softgen is your AI Web App Developer. Describe your vision, give instructions, and build full-stack web apps. No coding required.",
+    logo_url: "/placeholder.svg?height=150&width=150",
+    website: "https://softgen.ai",
+    location: "Tech District, Premium Location",
+    contact_email: "info@softgen.ai",
+    social_media: {
+      twitter: "@softgenai",
+      github: "softgen-ai",
+    },
+    founded_year: 2023,
+  },
 } as const;
 
-// Update MOCK_STALLS to add vendor 5 and 6
+// Update MOCK_STALLS to add vendor 5, 6, and 8
 const MOCK_STALLS: StallData[] = [
   {
     id: "mock-stall-1",
@@ -204,10 +219,10 @@ const MOCK_STALLS: StallData[] = [
   {
     id: "mock-stall-5",
     vendor_id: "mock-vendor-5",
-    position_x: 0,
+    position_x: -15,
     position_y: 0,
-    position_z: -15,
-    rotation_y: 0,
+    position_z: 0,
+    rotation_y: Math.PI / 2,
     color: "#42d1f5",
     name: "Eco Essentials",
     stall_type: 1,
@@ -215,10 +230,10 @@ const MOCK_STALLS: StallData[] = [
   {
     id: "mock-stall-6",
     vendor_id: "mock-vendor-6",
-    position_x: 0,
+    position_x: 15,
     position_y: 0,
-    position_z: 15,
-    rotation_y: Math.PI,
+    position_z: 0,
+    rotation_y: -Math.PI / 2,
     color: "#9142f5",
     name: "Literary Haven",
     stall_type: 3,
@@ -227,12 +242,23 @@ const MOCK_STALLS: StallData[] = [
     id: "mock-stall-7",
     vendor_id: "mock-vendor-7",
     position_x: 0,
-    position_y: 0.5, // Elevated position for prominence
+    position_y: 1,
     position_z: 0,
-    rotation_y: Math.PI / 4,
-    color: "#0066ff", // Brighter, more vibrant blue
+    rotation_y: 0,
+    color: "#0066ff",
     name: "Comp AI",
-    stall_type: 2, // Using tech stall type since it's a tech company
+    stall_type: 2,
+  },
+  {
+    id: "mock-stall-8",
+    vendor_id: "mock-vendor-8",
+    position_x: 20,
+    position_y: 1,
+    position_z: 0,
+    rotation_y: -Math.PI / 3,
+    color: "#6366f1",
+    name: "Softgen AI",
+    stall_type: 2,
   },
 ] as const;
 
@@ -472,6 +498,36 @@ const getMockProductsByVendorId = (vendorId: string) => {
           price: 149.99,
           image_url: "/placeholder.svg?height=250&width=250",
           vendor_id: "mock-vendor-7",
+        },
+      ];
+    case "mock-vendor-8": // Softgen AI
+      return [
+        {
+          id: "product-8-1",
+          name: "AI Web App Builder",
+          description:
+            "Build complete web applications using natural language instructions. Includes database setup, API integration, and responsive UI design.",
+          price: 299.99,
+          image_url: "/placeholder.svg?height=250&width=250",
+          vendor_id: "mock-vendor-8",
+        },
+        {
+          id: "product-8-2",
+          name: "Custom AI Integration",
+          description:
+            "Add AI capabilities to your existing web applications. Includes chatbots, recommendation systems, and content generation.",
+          price: 199.99,
+          image_url: "/placeholder.svg?height=250&width=250",
+          vendor_id: "mock-vendor-8",
+        },
+        {
+          id: "product-8-3",
+          name: "AI Development Consultation",
+          description:
+            "One-on-one consultation sessions to plan and optimize your AI-powered web applications.",
+          price: 149.99,
+          image_url: "/placeholder.svg?height=250&width=250",
+          vendor_id: "mock-vendor-8",
         },
       ];
     default:
